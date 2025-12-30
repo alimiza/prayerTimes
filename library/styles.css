@@ -1,0 +1,47 @@
+/* istiqlal */
+.body-theme-istiqlal {
+  background-image: url("images/istiqlal_jakarta/cover-masjid-istiqlal-1280x855-1.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* ukhuwah */
+.body-theme-ukhuwah {
+  background-image: url("images/ukhuwah_bandung/ukhuwah.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* sheikh zayed */
+.body-theme-zayed {
+  background-image: url("images/sheikhzayed_solo/sheikh_zayed_solo (1).jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.body-theme-ic-kaltim {
+  background-image: url("images/ic_samarinda/islamic-center-kaltim.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.body-theme-baiturrahman-aceh {
+  background-image: url("images/baiturrahman_aceh/Masjid-Baiturrahman-Aceh-5-scaled.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.top {
+  background-color: white;
+  font-size: 2rem;
+  opacity: 0.7;
+}
+
+.footer {
+  background-color: black;
+  font-size: 1rem;
+  opacity: 0.7;
+  position: fixed;
+  bottom: 0;
+}
+

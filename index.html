@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" /> -->
+    <link rel="stylesheet" href="./library/bootstrap.min.css" />
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" /> -->
+    <!-- <link rel="stylesheet" href="./library/bootstrap-icons.min.css"> -->
+    <link href="./library/styles.css" rel="stylesheet" />
+    <title>Waktu Sholat</title>
+  </head>
+
+  <body class="body-theme-ukhuwah">
+    <!-- Modal config -->
+    <div class="modal fade" id="modalConfig" tabindex="-1" aria-labelledby="modalConfigLabel">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="modalConfigLabel">Theme Selection</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body d-block">
+            <!-- <form class="row g-3">
+              <div class="col-auto">
+                <label for="kabko" class="visually-hidden">Password</label>
+                <input type="text" class="form-control" id="kabko" placeholder="Search Kota/Kabupaten" />
+              </div>
+              <div class="col-auto">
+                <button type="submit" class="btn btn-secondary mb-3 btn-searchkota">Search</button>
+              </div>
+            </form> -->
+            <div class="dropdown  my-3">
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Select new theme</button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" id="ukhuwah">Masjid Al-Ukhuwah Bandung</a></li>
+                <li><a class="dropdown-item" id="istiqlal">Masjid Istiqlal Jakarta</a></li>
+                <li><a class="dropdown-item" id="zayed">Masjid Sheikh Zayed Solo</a></li>
+                <li><a class="dropdown-item" id="ic-kaltim">Masjid Baitul Muttaqien Islamic Center Kaltim</a></li>
+                <li><a class="dropdown-item" id="baiturrahman-aceh">Masjid Baiturrahman Aceh</a></li>
+              </ul>
+            </div>
+            <a href="konfigurasi.html" class="link-underline-primary">Configuration Page</a>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- end of Modal config -->
+
+    <!-- Modal azan times -->
+    <div class="modal fade" id="modalAzanTime" tabindex="-1" aria-labelledby="modalAzanTimeLabel">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="modalAzanTimeLabel">Azan Time</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">...</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- end of Modal azan times -->
+
+    <!-- Top -->
+    <div class="container-fluid top">
+      <div class="row p-3">
+        <div class="col col-sm-3 current-date text-start"></div>
+        <div class="col col-sm-6 text-sm-center location"></div>
+        <div class="col col-sm-3 text-sm-end current-time"></div>
+      </div>
+    </div>
+    <!-- end of Top -->
+
+    <!-- footer -->
+    <div class="container-fluid footer justify-content-center text-center p-3 g-5">
+      <div class="row h3">
+        <div class="col m-3 border rounded text-bg-light subuh">
+          <h3>Subuh</h3>
+          <h1 class="praying-time" id="subuhId"></h1>
+        </div>
+        <div class="col m-3 border rounded text-bg-light zuhur">
+          <h3>Zuhur</h3>
+          <!-- <h1 class="praying-time" id="zuhurId">{{ .data.dzuhur }}</h1> -->
+          <h1 class="praying-time" id="zuhurId"></h1>
+        </div>
+        <div class="col m-3 border rounded text-bg-light ashar">
+          <h3>Ashar</h3>
+          <h1 class="praying-time" id="asharId"></h1>
+        </div>
+        <div class="col m-3 border rounded text-bg-light magrib">
+          <h3>Maghrib</h3>
+          <h1 class="praying-time" id="magribId"></h1>
+        </div>
+        <div class="col m-3 border rounded text-bg-light isya">
+          <h3>Isya</h3>
+          <h1 class="praying-time" id="isyaId"></h1>
+        </div>
+      </div>
+    </div>
+    <!-- end of footer -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script> -->
+    <script src="./library/bootstrap.bundle.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> -->
+    <script src="./library/jquery-3.7.1.js"></script>
+    <script src="./library/index.js"></script>
+  </body>
+</html>
