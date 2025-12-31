@@ -1,113 +1,71 @@
-// DB
-const dbName = "PTDB18";
-const version = 1;
-var db;
+// // DB
+// const dbName = "PTDB18";
+// const version = 1;
+// var db;
 
-// object store;
-var prayingTableStore = "prayingTimeTables";
-var defaultLocationStore = "defaultLocation";
-var locationStore = "locations";
+// // object store;
+// var prayingTableStore = "prayingTimeTables";
+// var defaultLocationStore = "defaultLocation";
+// var locationStore = "locations";
 
 // var prayTimeArr = [];
 var locationByDefault = "KOTA TANGERANG SELATAN";
 
 $(document).ready(function () {
-  const DBOpenRequest = window.indexedDB.open(dbName, version);
+  initiateIDBforIndexPage();
 
-  // Register two event handlers to act on the database being opened successfully, or not
-  DBOpenRequest.onerror = (event) => {
-    console.log("Error loading database.");
-  };
+  $(".location").click(function () {
+    $("#modalConfig").modal("show");
+  });
 
-  DBOpenRequest.onsuccess = async function (event) {
-    console.log("Database initialised.");
+  // change theme by changing class in body element ----------------------
+  function changeClass(newClass) {
+    $("body").removeClass();
+    $("body").addClass(newClass);
+  }
 
-    // Store the result of opening the database in the db variable. This is used a lot below
-    db = event.target.result;
+  $("#ukhuwah").click(function () {
+    changeClass("body-theme-ukhuwah");
+  });
 
-    db.onerror = (event) => {
-      // Generic error handler for all errors targeted at this database's
-      // requests!
-      console.error(`Database error: ${event.target.error?.message}`);
-    };
+  $("#istiqlal").click(function () {
+    changeClass("body-theme-istiqlal");
+  });
 
-    let req;
-    req = await db.transaction(defaultLocationStore, "readonly").objectStore(defaultLocationStore).getAll();
+  $("#zayed").click(function () {
+    changeClass("body-theme-zayed");
+  });
 
-    req.onsuccess = function (ev) {
-      if (ev.target.result.length === 0) {
-        // default location not exist, redirect to config page
-        alert("default location not exist. redirecting to configuration page.");
-        window.location.replace("konfigurasi.html");
-      } else {
-        defLoc = ev.target.result[0].defaultLocation;
-        // default location exist
-        $(".location").text(ev.target.result[0].defaultLocation);
-        showPrayingTimeToday();
-        displayTime();
-      }
-    };
-   
-  };
+  $("#ic-kaltim").click(function () {
+    changeClass("body-theme-ic-kaltim");
+  });
 
+  $("#baiturrahman-aceh").click(function () {
+    changeClass("body-theme-baiturrahman-aceh");
+  });
+  // end of change theme by changing class in body element ----------------------
 
-  DBOpenRequest.onupgradeneeded = (event) => {
-    db = event.target.result;
-
-    db.onerror = (event) => {
-      console.log("Error loading database.");
-    };
-
-    // Create an objectStore for this database if not yet exist
-    if (!db.objectStoreNames.contains(prayingTableStore)) {
-      objectStore = db.createObjectStore(prayingTableStore, { keyPath: "key" });
-      // create index for searching purpose
-      objectStore.createIndex("kabko_idx", "kabko");
-    }
-    if (!db.objectStoreNames.contains(defaultLocationStore)) {
-      objectStore = db.createObjectStore(defaultLocationStore, { keyPath: "defaultLocation" });
-    }
-    if (!db.objectStoreNames.contains(locationStore)) {
-      objectStore = db.createObjectStore(locationStore, { keyPath: "id" });
-    }
-  };
-
+  
 });
 
+function renderPrayingTimeToday(PTArr) {
+  $("#subuhId").text(PTArr.subuh);
+  $("#zuhurId").text(PTArr.zuhur);
+  $("#asharId").text(PTArr.ashar);
+  $("#magribId").text(PTArr.magrib);
+  $("#isyaId").text(PTArr.isya);
 
-$(".location").click(function () {
-  $("#modalConfig").modal("show");
-});
-
-// change theme by changing class in body element ----------------------
-function changeClass(newClass) {
-  $("body").removeClass();
-  $("body").addClass(newClass);
+  decorateDisplayTime();
 }
 
-$("#ukhuwah").click(function () {
-  changeClass("body-theme-ukhuwah");
-});
+function redirectToConfigPage() {
+  alert("default location not exist. please download the data to automatically set default location. redirecting...");
+  window.location.replace("konfigurasi.html");
+}
 
-$("#istiqlal").click(function () {
-  changeClass("body-theme-istiqlal");
-});
 
-$("#zayed").click(function () {
-  changeClass("body-theme-zayed");
-});
 
-$("#ic-kaltim").click(function () {
-  changeClass("body-theme-ic-kaltim");
-});
-
-$("#baiturrahman-aceh").click(function () {
-  changeClass("body-theme-baiturrahman-aceh");
-});
-
-// end of change theme by changing class in body element ----------------------
-
-function displayTime() {
+function decorateDisplayTime() {
   setInterval(function () {
     var current = new Date();
 
@@ -230,68 +188,4 @@ function displayTime() {
   }, 1000);
 }
 
-function showPrayingTimeToday() {
-  // default location
-  let currentLocation;
-  let locationReq;
 
-  try {
-    let trx = db.transaction(defaultLocationStore, "readonly");
-    let objStore = trx.objectStore(defaultLocationStore);
-    locationReq = objStore.getAll();
-
-    locationReq.onsuccess = function () {
-      if (locationReq.result.length === 0) {
-        // default location not exist, redirect to config page
-        alert("default location not exist. please download the data to automatically set default location. redirecting...");
-        window.location.replace("konfigurasi.html");
-      } else {
-        // default location exist
-        // console.log("default location exist. loading prayer times.");
-        currentLocation = locationReq.result[0].defaultLocation;
-
-        // generate key id
-        let currentDate = new Date();
-        const year = currentDate.getFullYear();
-        const month = function () {
-          if (currentDate.getMonth() + 1 < 10) {
-            return "0" + (currentDate.getMonth() + 1);
-          } else {
-            return currentDate.getMonth() + 1;
-          }
-        };
-        const date = function () {
-          if (currentDate.getDate() < 10) {
-            return "0" + currentDate.getDate();
-          } else {
-            return currentDate.getDate();
-          }
-        };
-
-        let keyId = currentLocation + year + "-" + month() + "-" + date();
-
-        let reqStore = db.transaction(prayingTableStore, "readonly").objectStore(prayingTableStore);
-        let prayTime = reqStore.get(keyId);
-
-        prayTime.onsuccess = function () {
-          if (prayTime.result !== undefined) {
-            $("#subuhId").text(prayTime.result.subuh);
-            $("#zuhurId").text(prayTime.result.zuhur);
-            $("#asharId").text(prayTime.result.ashar);
-            $("#magribId").text(prayTime.result.magrib);
-            $("#isyaId").text(prayTime.result.isya);
-          } else {
-            alert("default location not exist. please download the data to automatically set default location. redirecting...");
-            window.location.replace("konfigurasi.html");
-          }
-        };
-
-        prayTime.onerror = function () {
-          console.log("get praying time table result on error");
-        };
-      }
-    };
-  } catch (error) {
-    console.log("catch error get default location");
-  }
-}

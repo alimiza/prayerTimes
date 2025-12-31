@@ -1,127 +1,5 @@
-// DB
-const dbName = "PTDB18";
-const version = 1;
-var db;
-
-// var object store;
-var prayingTimeStore = "prayingTimeTables";
-var defaultLocationStore = "defaultLocation";
-var locationStore = "locations";
-
-// location
-var currentLocation = "";
-
 $(document).ready(function () {
-  // initiate DB
-  const DBOpenRequest = window.indexedDB.open(dbName, version);
-
-  // Register two event handlers to act on the database being opened successfully, or not
-  DBOpenRequest.onerror = (event) => {
-    console.log("Error loading database.");
-  };
-
-  DBOpenRequest.onsuccess = (event) => {
-    // Store the result of opening the database in the db variable
-    db = event.target.result;
-
-    confirmDefaultLocation(() => {
-      viewAllLocations(viewPrayingTables);
-    });
-  };
-
-  DBOpenRequest.onupgradeneeded = (event) => {
-    db = event.target.result;
-    console.log(db);
-
-    db.onerror = (event) => {
-      console.log("Error loading database.");
-    };
-
-    // Create an objectStore for this database
-    if (!db.objectStoreNames.contains(locationStore)) {
-      objectStore = db.createObjectStore(locationStore, { keyPath: "id" });
-    }
-
-    if (!db.objectStoreNames.contains(defaultLocationStore)) {
-      objectStore = db.createObjectStore(defaultLocationStore, { keyPath: "defaultLocation" });
-    }
-
-    if (!db.objectStoreNames.contains(prayingTimeStore)) {
-      objectStore = db.createObjectStore(prayingTimeStore, { keyPath: "key" });
-      // create index for searching purpose
-      objectStore.createIndex("kabko_idx", "kabko");
-    }
-  };
-
-  function confirmDefaultLocation(callback) {
-    // if default location not set, set it first
-    let objStore = db.transaction(defaultLocationStore, "readwrite").objectStore(defaultLocationStore);
-    let defLocReq = objStore.getAll();
-
-    defLocReq.onsuccess = function () {
-      if (defLocReq.result.length === 0) {
-        // default location not exist. select it first before proceeding
-        currentLocation = "KOTA TANGERANG SELATAN";
-        let addReq = objStore.add({ defaultLocation: currentLocation });
-        addReq.onsuccess = function () {
-          console.log("default location added");
-          callback();
-        };
-      } else {
-        currentLocation = defLocReq.result[0].defaultLocation;
-        callback();
-      }
-    };
-  }
-
-  function viewAllLocations(callback) {
-    // assumption: current and default location has been already set
-    // check all location from DB, download if not yet exist
-
-    let locReq;
-    locReq = db.transaction(locationStore, "readonly").objectStore(locationStore).getAll();
-
-    locReq.onsuccess = function () {
-      if (locReq.result.length === 0) {
-        // download all locations
-        downloadAllLocations(() => {
-          viewAllLocations(callback);
-        });
-      } else {
-        let locList = "";
-        locReq.result.forEach(function (element) {
-          if (currentLocation === element.lokasi) {
-            locList += "<option value=" + element.id + " selected>" + element.lokasi + "</option>";
-          } else {
-            locList += "<option value=" + element.id + ">" + element.lokasi + "</option>";
-          }
-        });
-        $("#locationList").html(locList);
-        callback();
-      }
-    };
-  }
-
-  function viewPrayingTables() {
-    // assumption: current location has been already set
-    let html = "";
-    let reqPT = db.transaction(prayingTimeStore, "readonly").objectStore(prayingTimeStore).index("kabko_idx").getAll(currentLocation);
-
-    reqPT.onsuccess = function () {
-      if (reqPT.result.length === 0) {
-        $("#prayingTableCaption").html("Klik Sinkronisasi Data untuk mendownload data");
-      } else {
-        // show data in tables based on location
-
-        reqPT.result.forEach(function (element) {
-          html += "<tr><th scope='row'>" + element.date + "</th><td>" + element.subuh + "</td><td>" + element.zuhur + "</td><td>" + element.ashar + "</td><td>" + element.magrib + "</td><td>" + element.isya + "</td></tr>";
-        });
-
-        $("#prayingTableCaption").html("");
-      }
-      $("#prayingTimeTables").html(html);
-    };
-  }
+  initiateIDBforConfigPage();
 
   function updateDefaultLocation(defLoc, callback) {
     let objStore = db.transaction(defaultLocationStore, "readwrite").objectStore(defaultLocationStore);
@@ -140,37 +18,11 @@ $(document).ready(function () {
     if ($("#locationList option:selected").text() !== "Select New Location") {
       // set new default location
       currentLocation = loc;
-      updateDefaultLocation(loc, viewPrayingTables);
+      updateDefaultLocation(loc, () => {
+        getPrayingTimeTable(viewPrayingTimeTables);
+      });
     }
   });
-
-  async function downloadAllLocations(callback) {
-    try {
-      let url = "https://api.myquran.com/v3/sholat/kabkota/semua";
-      const response = await fetch(url);
-      const data = await response.json();
-
-      let newLocationData = new Object();
-      let req;
-      objectStore = db.transaction(locationStore, "readwrite").objectStore(locationStore);
-
-      data.data.forEach((element) => {
-        newLocationData = {
-          id: element.id,
-          lokasi: element.lokasi,
-        };
-        // add to DB
-        req = objectStore.put(newLocationData);
-      });
-
-      req.onsuccess = function () {
-        console.log("put success");
-        callback();
-      };
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
 
   $("#syncDataBtn").click(function () {
     if ($("#locationList option:selected").text() === "Select New Location") {
@@ -180,7 +32,10 @@ $(document).ready(function () {
       let locId = $("#locationList option:selected").attr("value");
 
       // download new praying time tables in 1 year
-      downloadPrayingTimeTables(locId, viewPrayingTables);
+      // downloadPrayingTimeTables(locId, viewPrayingTables);
+      downloadPrayingTimeTables(locId, () => {
+        getPrayingTimeTable(viewPrayingTimeTables);
+      });
     }
   });
 
@@ -262,3 +117,33 @@ $(document).ready(function () {
     };
   });
 });
+
+function viewPrayingTimeTables(PTArr) {
+  // assumption: current location has been already set
+  let html = "";
+
+  if (PTArr.length === 0) {
+    $("#prayingTableCaption").html("Klik Sinkronisasi Data untuk mendownload data");
+  } else {
+    // show data in tables based on location
+
+    PTArr.forEach(function (element) {
+      html += "<tr><th scope='row'>" + element.date + "</th><td>" + element.subuh + "</td><td>" + element.zuhur + "</td><td>" + element.ashar + "</td><td>" + element.magrib + "</td><td>" + element.isya + "</td></tr>";
+    });
+
+    $("#prayingTableCaption").html("");
+  }
+  $("#prayingTimeTables").html(html);
+}
+
+function renderLocations(locArr) {
+  let locList = "";
+  locArr.forEach(function (element) {
+    if (currentLocation === element.lokasi) {
+      locList += "<option value=" + element.id + " selected>" + element.lokasi + "</option>";
+    } else {
+      locList += "<option value=" + element.id + ">" + element.lokasi + "</option>";
+    }
+  });
+  $("#locationList").html(locList);
+}
