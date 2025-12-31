@@ -1,5 +1,5 @@
 // DB
-const dbName = "PTDB18";
+const dbName = "PTDB";
 const version = 1;
 var db;
 
@@ -50,8 +50,8 @@ function initiateIDBforIndexPage() {
       console.log("Error loading database.");
     };
     // Create an objectStore for this database if not yet exist
-    if (!db.objectStoreNames.contains(prayingTableStore)) {
-      objectStore = db.createObjectStore(prayingTableStore, { keyPath: "key" });
+    if (!db.objectStoreNames.contains(prayingTimeStore)) {
+      objectStore = db.createObjectStore(prayingTimeStore, { keyPath: "key" });
       // create index for searching purpose
       objectStore.createIndex("kabko_idx", "kabko");
     }
